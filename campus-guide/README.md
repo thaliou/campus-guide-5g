@@ -15,6 +15,7 @@ UE (10.0.x.x) --Uu--> gNB --N3 / GTP-U--> oai-upf (192.168.70.134) --N6--> campu
 | `../docker-compose.campus.yml` | Ajoute le conteneur `campus-guide` (nginx) au réseau `oaiworkshop` |
 | `app/index.html` | Application complète (HTML + CSS + JavaScript commenté) |
 | `app/data/campus.json` | **Seul fichier à modifier pour changer de campus** : plan, départs, lieux, graphe des allées |
+| `app/img/ept.svg` | Photo **provisoire** de l'école (page d'accueil), à remplacer par une vraie photo |
 | `app/img/plan.svg` | Plan **schématique** à remplacer par le vrai plan de l'école |
 | `app/img/*.svg` | Photos de remplacement, une par lieu |
 | `app/img/photo-absente.svg` | Image affichée automatiquement si la photo d'un lieu manque |
@@ -23,6 +24,8 @@ UE (10.0.x.x) --Uu--> gNB --N3 / GTP-U--> oai-upf (192.168.70.134) --N6--> campu
 | `generer_qr.py` | Régénère les QR codes à partir de `campus.json` |
 
 ## Comment ça marche
+
+- **Pages** : la partie après `#` de l'adresse choisit la page (`#/`, `#/depart`, `#/destination`, `#/trajet/<id>`, `#/lieux`, `#/apropos`). Le bouton « Retour » du téléphone fonctionne donc normalement. Un QR code (`?depart=entree`) mène directement au choix de la destination.
 
 - **Carte** : Leaflet en mode `L.CRS.Simple`. Le plan est une simple image ; les coordonnées sont des **pixels de l'image**, origine en haut à gauche. Leaflet attend `[lat, lng]` avec l'axe vertical vers le haut, d'où la conversion `[hauteur - y, x]`.
 - **Graphe** : les `noeuds` sont les portes de bâtiments, les carrefours et les points de départ ; les `aretes` relient deux nœuds par une allée réellement praticable. Le poids d'une arête est la distance euclidienne en pixels.
@@ -34,6 +37,7 @@ UE (10.0.x.x) --Uu--> gNB --N3 / GTP-U--> oai-upf (192.168.70.134) --N6--> campu
 
 ```json
 {
+  "ecole":  { "nom": "EPT", "titreAccueil": "Bienvenue à l'EPT", "sousTitre": "Trouvez votre chemin…", "photo": "img/ept.jpg" },
   "carte":  { "image": "img/plan.svg", "largeur": 1000, "hauteur": 700, "metresParPixel": 0.5, "vitesseMarcheKmh": 4.5 },
   "departs": [ { "id": "entree", "nom": "Entrée principale", "noeud": "entree" } ],
   "lieux":  [ { "id": "scolarite", "nom": "Scolarité", "categorie": "Démarches", "noeud": "d_scol",
@@ -44,6 +48,8 @@ UE (10.0.x.x) --Uu--> gNB --N3 / GTP-U--> oai-upf (192.168.70.134) --N6--> campu
 ```
 
 Le `nom` d'un nœud est facultatif : ne le mettez que sur les repères utiles (carrefours, places).
+
+Le bloc `ecole` est facultatif : il règle la page d'accueil (nom affiché en haut à droite, titre, phrase d'accroche, grande photo).
 
 ## 1. Tester sur son PC (sans Docker)
 
@@ -58,8 +64,11 @@ Puis ouvrir dans le navigateur :
 
 | Adresse | Résultat attendu |
 | --- | --- |
-| `http://localhost:8000/` | Écran « Où êtes-vous ? » avec un bouton par départ |
-| `http://localhost:8000/?depart=entree` | « Vous êtes à : Entrée principale » + lieux par catégorie |
+| `http://localhost:8000/` | Page d'accueil (photo de l'école, bouton « S'orienter ») |
+| `http://localhost:8000/?depart=entree` | Comme un scan du QR code : « Vous êtes à : Entrée principale » + lieux par catégorie |
+| `http://localhost:8000/#/depart` | Écran « Où êtes-vous ? » avec un bouton par départ |
+| `http://localhost:8000/#/lieux` | Tous les lieux avec leur photo et un bouton « Y aller » |
+| `http://localhost:8000/#/apropos` | Présentation du projet et de l'équipe |
 | `http://localhost:8000/?edit=1` | Mode édition (carte seule, relevé de coordonnées) |
 
 Astuce : dans le navigateur, `F12` puis le mode « appareil mobile » (360 px de large) pour vérifier l'affichage sur téléphone. L'onglet **Réseau** ne doit montrer que des requêtes vers `localhost`.
@@ -125,6 +134,10 @@ nmcli dev wifi hotspot ifname <carte_wifi> ssid Campus5G password <motdepasse>
 
 ## 5. Adapter au vrai campus
 
+### 5.0 Remplacer la photo de l'école (page d'accueil)
+
+Déposez la photo dans `app/img/` (par exemple `ept.jpg`, environ 1600 px de large, moins de 400 Ko), puis mettez `"photo": "img/ept.jpg"` dans le bloc `ecole` de `campus.json`. Une photo en format paysage, avec le bâtiment principal au centre, rend le mieux : le bas de l'image est assombri pour que le texte reste lisible.
+
 ### 5.1 Remplacer le plan
 
 1. Copiez l'image du plan dans `app/img/` (par exemple `plan.png`). Une image d'environ 1500 à 2500 px de large convient bien.
@@ -178,7 +191,8 @@ Le script lit `app/data/campus.json` et crée `app/qr/qr_<id>.png` pour chaque d
 ## 7. Liste de contrôle avant la démo
 
 - [ ] `/?depart=entree` : chaque lieu affiche un trajet.
-- [ ] `/` sans paramètre : l'écran de choix du départ apparaît.
+- [ ] `/` sans paramètre : la page d'accueil apparaît ; « S'orienter » mène au choix du départ.
+- [ ] Le bouton « Retour » du téléphone revient bien à la page précédente.
 - [ ] `/?edit=1` : les clics affichent des coordonnées et le message « Graphe connexe ».
 - [ ] Onglet Réseau (F12) : aucune requête vers une adresse externe.
 - [ ] Console (F12) : aucune erreur.

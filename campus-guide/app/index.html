@@ -3,118 +3,394 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0E5E45">
 <title>Guide du campus</title>
 <!-- Icône vide : évite que le navigateur demande /favicon.ico (erreur 404 dans la console) -->
 <link rel="icon" href="data:,">
 <!-- Leaflet est servi en local (dossier vendor/) : aucun accès Internet nécessaire -->
 <link rel="stylesheet" href="vendor/leaflet.css">
 <style>
-  :root { --vert:#1B6E53; --vert-clair:#E8F3EE; --encre:#1F2933; --gris:#5F6B7A; --fond:#F6F8FA; --ligne:#D9E0E6; }
-  * { box-sizing: border-box; }
+  /* ============ Couleurs et réglages communs ============ */
+  :root {
+    --vert:#0E5E45; --vert-2:#1B8A63; --vert-clair:#E6F4EE; --or:#F2A93B;
+    --bleu:#2B6CB0; --rouge:#C0392B;
+    --encre:#14212B; --gris:#5B6876; --fond:#F4F6F8; --blanc:#FFFFFF; --ligne:#E1E6EB;
+    --ombre:0 1px 2px rgba(16,24,40,.06), 0 6px 20px rgba(16,24,40,.07);
+    --rayon:16px;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
   /* Polices du système uniquement : pas de police web externe */
-  body { margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--encre); background:var(--fond); }
-  header { background:var(--vert); color:#fff; padding:14px 16px; }
-  header h1 { margin:0; font-size:19px; }
-  header p { margin:4px 0 0; font-size:15px; opacity:.95; }
-  main { max-width:720px; margin:0 auto; padding:16px; }
-  h2 { font-size:16px; margin:18px 0 10px; color:var(--gris); text-transform:uppercase; letter-spacing:.04em; }
-  h2.titre { text-transform:none; letter-spacing:0; color:var(--encre); font-size:18px; }
-  /* Grille de gros boutons : 2 colonnes sur un écran de 360 px */
-  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:10px; }
-  button.choix { background:#fff; border:1.5px solid var(--ligne); border-radius:12px; padding:14px 12px; text-align:left;
-    font-size:15px; font-weight:600; color:var(--encre); cursor:pointer; min-height:64px; }
-  button.choix:hover, button.choix:focus { border-color:var(--vert); outline:none; background:var(--vert-clair); }
-  button.choix small { display:block; font-weight:400; color:var(--gris); font-size:12.5px; margin-top:4px; }
-  #carte { height:clamp(280px, 85vw, 52vh); border-radius:12px; border:1px solid var(--ligne); background:#E7EFDF; }
-  .resume { display:flex; gap:12px; margin:12px 0; }
-  .resume div { flex:1; background:#fff; border:1px solid var(--ligne); border-radius:10px; padding:10px 12px; }
-  .resume b { display:block; font-size:20px; color:var(--vert); }
-  .resume span { font-size:13px; color:var(--gris); }
-  .photo { background:#fff; border:1px solid var(--ligne); border-radius:12px; overflow:hidden; margin-top:12px; }
-  .photo img { width:100%; display:block; }
-  .photo p { margin:0; padding:10px 12px; font-size:14px; }
-  ol.etapes { background:#fff; border:1px solid var(--ligne); border-radius:12px; padding:12px 12px 12px 34px; margin:12px 0 0; font-size:14.5px; line-height:1.6; }
-  .actions { display:flex; gap:10px; margin-top:14px; }
-  .actions button { flex:1; padding:13px; min-height:52px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; border:1.5px solid var(--vert); background:#fff; color:var(--vert); }
-  .actions button.plein { background:var(--vert); color:#fff; }
-  .alerte { background:#FDECEA; border:1px solid #E5A29B; color:#7A1F17; border-radius:10px; padding:12px; margin:12px 0; font-size:14.5px; }
+  body { margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color:var(--encre);
+    background:var(--fond); line-height:1.5; -webkit-tap-highlight-color:transparent; }
+  a { color:inherit; }
+  svg.ic { width:22px; height:22px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
   .cache { display:none !important; }
-  #edition { background:#FFF8E6; border:1px solid #E7C77A; border-radius:10px; padding:10px; margin-top:12px; font-size:13px; }
+  .conteneur { max-width:1080px; margin:0 auto; padding:0 16px; }
+
+  /* ============ En-tête : menu à gauche, icône à droite ============ */
+  header.barre { position:sticky; top:0; z-index:1000; background:rgba(255,255,255,.94);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-bottom:1px solid var(--ligne); }
+  header.barre .conteneur { display:flex; align-items:center; gap:12px; height:62px; }
+  .burger { display:flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:12px;
+    border:1px solid var(--ligne); background:var(--blanc); color:var(--encre); cursor:pointer; }
+  nav.menu { display:none; }
+  nav.menu a { display:block; text-decoration:none; font-weight:600; font-size:15.5px; color:var(--gris);
+    padding:12px 14px; border-radius:10px; }
+  nav.menu a:hover { color:var(--vert); background:var(--vert-clair); }
+  nav.menu a.actif { color:var(--vert); background:var(--vert-clair); }
+  /* Menu mobile : panneau qui descend sous la barre */
+  nav.menu.ouvert { display:block; position:absolute; top:62px; left:0; right:0; background:var(--blanc);
+    border-bottom:1px solid var(--ligne); box-shadow:var(--ombre); padding:8px 16px 14px; }
+  .marque { margin-left:auto; display:flex; align-items:center; gap:10px; text-decoration:none; }
+  .marque span { font-weight:800; font-size:16px; letter-spacing:-.01em; text-align:right; line-height:1.15; }
+  .marque span small { display:block; font-weight:500; font-size:11.5px; color:var(--gris); }
+  .logo { width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg, var(--vert), var(--vert-2));
+    display:flex; align-items:center; justify-content:center; color:#fff; box-shadow:0 4px 12px rgba(14,94,69,.35); }
+  .logo svg { width:24px; height:24px; }
+  /* Écran large : les liens s'affichent directement à gauche */
+  @media (min-width:768px) {
+    .burger { display:none; }
+    nav.menu, nav.menu.ouvert { display:flex; gap:4px; position:static; padding:0; border:0; box-shadow:none; background:none; }
+    nav.menu a { padding:8px 12px; font-size:15px; }
+  }
+
+  /* ============ Boutons ============ */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:52px; padding:0 22px;
+    border-radius:14px; font-size:16px; font-weight:700; cursor:pointer; text-decoration:none; border:2px solid transparent; }
+  .btn-plein { background:var(--or); color:#2B1C05; }
+  .btn-plein:hover { filter:brightness(1.05); }
+  .btn-verre { background:rgba(255,255,255,.14); color:#fff; border-color:rgba(255,255,255,.55); }
+  .btn-vert { background:var(--vert); color:#fff; }
+  .btn-contour { background:var(--blanc); color:var(--vert); border-color:var(--vert); }
+
+  /* ============ Accueil ============ */
+  .hero { position:relative; min-height:clamp(480px, 82vh, 720px); display:flex; align-items:flex-end; color:#fff; overflow:hidden; background:#24543F; }
+  .hero img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+  .hero::after { content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(8,30,22,.15) 0%, rgba(8,30,22,.45) 45%, rgba(8,30,22,.88) 100%); }
+  .hero .conteneur { position:relative; z-index:1; padding-bottom:44px; width:100%; }
+  .pastille { display:inline-flex; align-items:center; gap:8px; background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+    padding:6px 12px; border-radius:999px; font-size:13px; font-weight:600; backdrop-filter:blur(6px); }
+  .pastille i { width:8px; height:8px; border-radius:50%; background:#4ADE80; box-shadow:0 0 0 4px rgba(74,222,128,.25); }
+  .hero h1 { font-size:clamp(32px, 9vw, 58px); line-height:1.05; letter-spacing:-.02em; margin:16px 0 12px; max-width:14ch; }
+  .hero p { font-size:clamp(16px, 4.3vw, 19px); margin:0 0 24px; max-width:42ch; opacity:.95; }
+  .hero .boutons { display:flex; flex-wrap:wrap; gap:10px; }
+  .hero .boutons .btn { flex:1 1 160px; max-width:240px; }
+
+  .chiffres { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; margin-top:-28px; position:relative; z-index:2; }
+  .chiffres div { background:var(--blanc); border-radius:var(--rayon); box-shadow:var(--ombre); padding:14px 10px; text-align:center; }
+  .chiffres b { display:block; font-size:24px; color:var(--vert); line-height:1.1; }
+  .chiffres span { font-size:12.5px; color:var(--gris); }
+
+  section.bloc { padding:36px 0 8px; }
+  .surtitre { color:var(--vert-2); font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.08em; margin:0 0 4px; }
+  .bloc h2 { font-size:clamp(22px, 6vw, 30px); letter-spacing:-.01em; margin:0 0 18px; line-height:1.2; }
+  .etapes-accueil { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+  .etape-carte { background:var(--blanc); border-radius:var(--rayon); padding:18px; box-shadow:var(--ombre); }
+  .etape-carte .rond { width:46px; height:46px; border-radius:14px; background:var(--vert-clair); color:var(--vert);
+    display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
+  .etape-carte h3 { margin:0 0 4px; font-size:17px; }
+  .etape-carte p { margin:0; color:var(--gris); font-size:14.5px; }
+
+  /* ============ Listes de choix (départs, destinations) ============ */
+  .page { padding-top:22px; padding-bottom:28px; }   /* garde la marge gauche/droite de .conteneur */
+  .page-titre h1 { font-size:clamp(24px, 6.5vw, 32px); margin:0 0 6px; letter-spacing:-.01em; line-height:1.2; }
+  .page-titre p { margin:0 0 18px; color:var(--gris); }
+  h2.categorie { font-size:13px; margin:22px 0 10px; color:var(--gris); text-transform:uppercase; letter-spacing:.08em; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; }
+  button.choix { display:flex; align-items:center; gap:12px; width:100%; background:var(--blanc); border:1.5px solid var(--ligne);
+    border-radius:var(--rayon); padding:10px 12px; text-align:left; font:inherit; font-size:15.5px; font-weight:700;
+    color:var(--encre); cursor:pointer; min-height:72px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
+  button.choix:hover, button.choix:focus-visible { border-color:var(--vert-2); outline:none; background:var(--vert-clair); }
+  button.choix .texte { flex:1; min-width:0; }
+  button.choix small { display:block; font-weight:400; color:var(--gris); font-size:13px; margin-top:2px; line-height:1.35; }
+  button.choix .vignette { width:56px; height:56px; border-radius:12px; object-fit:cover; flex:none; background:var(--fond); }
+  button.choix .puce { width:44px; height:44px; border-radius:12px; background:var(--vert-clair); color:var(--vert);
+    display:flex; align-items:center; justify-content:center; flex:none; }
+  button.choix .fleche { color:var(--gris); }
+
+  .position { display:flex; align-items:center; gap:12px; background:var(--blanc); border-radius:var(--rayon);
+    box-shadow:var(--ombre); padding:12px 14px; margin-bottom:6px; }
+  .position .point { width:14px; height:14px; border-radius:50%; background:var(--bleu); box-shadow:0 0 0 5px rgba(43,108,176,.18); flex:none; }
+  .position div { flex:1; }
+  .position small { display:block; color:var(--gris); font-size:12.5px; }
+  .position b { font-size:16px; }
+  .lien-btn { background:none; border:0; color:var(--vert); font:inherit; font-weight:700; cursor:pointer; padding:10px 6px; }
+
+  /* ============ Itinéraire ============ */
+  .trajet-entete small { color:var(--gris); font-weight:600; font-size:13px; text-transform:uppercase; letter-spacing:.08em; }
+  .trajet-entete h1 { font-size:clamp(20px, 5.6vw, 28px); margin:2px 0 14px; line-height:1.25; }
+  #carte { height:clamp(300px, 90vw, 56vh); border-radius:var(--rayon); border:1px solid var(--ligne); background:#E7EFDF; box-shadow:var(--ombre); }
+  .resume { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }
+  .resume div { display:flex; align-items:center; gap:10px; background:var(--blanc); border-radius:var(--rayon); padding:12px; box-shadow:var(--ombre); }
+  .resume .rond { width:42px; height:42px; border-radius:12px; background:var(--vert-clair); color:var(--vert); display:flex; align-items:center; justify-content:center; flex:none; }
+  .resume b { display:block; font-size:21px; color:var(--encre); line-height:1.1; }
+  .resume span { font-size:12.5px; color:var(--gris); }
+  .colonnes { display:grid; gap:12px; }
+  @media (min-width:768px) { .colonnes { grid-template-columns:1fr 1fr; align-items:start; } }
+  .carte-blanche { background:var(--blanc); border-radius:var(--rayon); box-shadow:var(--ombre); overflow:hidden; }
+  .photo img { width:100%; display:block; aspect-ratio:16/10; object-fit:cover; background:var(--fond); }
+  .photo div { padding:12px 14px; }
+  .photo b { display:block; font-size:16px; }
+  .photo p { margin:2px 0 0; font-size:14.5px; color:var(--gris); }
+  /* Étapes en frise verticale : point bleu au départ, rouge à l'arrivée */
+  .etapes-bloc { padding:14px 14px 6px; }
+  .etapes-bloc h3 { margin:0 0 8px; font-size:16px; }
+  ol.etapes { list-style:none; margin:0; padding:0; }
+  ol.etapes li { position:relative; padding:0 0 16px 30px; font-size:15px; }
+  ol.etapes li::before { content:""; position:absolute; left:4px; top:5px; width:12px; height:12px; border-radius:50%;
+    background:var(--vert-2); border:2px solid #fff; box-shadow:0 0 0 2px var(--vert-2); }
+  ol.etapes li::after { content:""; position:absolute; left:10px; top:22px; bottom:2px; width:2px; background:var(--ligne); }
+  ol.etapes li:first-child::before { background:var(--bleu); box-shadow:0 0 0 2px var(--bleu); }
+  ol.etapes li:last-child::before { background:var(--rouge); box-shadow:0 0 0 2px var(--rouge); }
+  ol.etapes li:last-child::after { display:none; }
+  .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+  .actions .btn { padding:0 10px; font-size:15px; }
+  .alerte { background:#FDECEA; border:1px solid #E5A29B; color:#7A1F17; border-radius:12px; padding:14px; margin:12px 0; font-size:15px; }
+
+  /* ============ Page « Les lieux » ============ */
+  .grille-lieux { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
+  .lieu { display:flex; flex-direction:column; background:var(--blanc); border-radius:var(--rayon); box-shadow:var(--ombre); overflow:hidden; }
+  .lieu img { width:100%; aspect-ratio:16/10; object-fit:cover; display:block; background:var(--fond); }
+  .lieu div { padding:12px 14px 14px; display:flex; flex-direction:column; gap:6px; flex:1; }
+  .lieu .etiquette { align-self:flex-start; background:var(--vert-clair); color:var(--vert); font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; }
+  .lieu h3 { margin:0; font-size:17px; }
+  .lieu p { margin:0; color:var(--gris); font-size:14px; flex:1; }
+  .lieu .btn { margin-top:6px; min-height:46px; font-size:15px; }
+
+  /* ============ Page « À propos » ============ */
+  .texte-long { background:var(--blanc); border-radius:var(--rayon); box-shadow:var(--ombre); padding:18px; margin-bottom:14px; }
+  .texte-long h2 { font-size:19px; margin:0 0 8px; }
+  .texte-long p, .texte-long li { color:#34414D; font-size:15px; }
+  .chaine { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:10px 0 4px; }
+  .chaine span { background:var(--vert-clair); color:var(--vert); font-weight:700; font-size:13px; padding:6px 10px; border-radius:10px; }
+  .chaine i { color:var(--gris); font-style:normal; }
+
+  footer { margin-top:40px; padding:22px 0 30px; border-top:1px solid var(--ligne); color:var(--gris); font-size:13.5px; text-align:center; }
+
+  /* ============ Mode édition (?edit=1) : la carte seule ============ */
+  #edition { background:#FFF8E6; border:1px solid #E7C77A; border-radius:12px; padding:12px; margin-top:12px; font-size:13.5px; }
   #edition textarea { width:100%; height:160px; font-family:monospace; font-size:12px; }
-  /* Mode édition : la carte seule, plus haute */
   body.edition #carte { height:70vh; }
-  body.edition #titre-trajet, body.edition .resume, body.edition .photo,
-  body.edition .etapes, body.edition .actions, body.edition #pas-de-chemin { display:none; }
+  body.edition .trajet-entete, body.edition #pas-de-chemin, body.edition #details,
+  body.edition .actions, body.edition footer { display:none !important; }
 </style>
 </head>
 <body>
-<header>
-  <h1>Bienvenue sur le campus</h1>
-  <p id="position">Chargement…</p>
+
+<!-- Petits pictogrammes réutilisés plus bas avec <use href="#..."> -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-boussole" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.2 7.8 14 14 7.8 16.2 10 10 16.2 7.8"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></symbol>
+  <symbol id="i-doigt" viewBox="0 0 24 24"><path d="M9 11V5a2 2 0 0 1 4 0v5"/><path d="M13 10a2 2 0 0 1 4 0v2"/><path d="M17 12a2 2 0 0 1 4 0v3a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4.3 15a2 2 0 0 1 3.4-2L9 15"/></symbol>
+  <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/></symbol>
+  <symbol id="i-horloge" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-fleche" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+  <symbol id="i-croix" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
+
+<!-- ================= En-tête : menu à gauche, icône à droite ================= -->
+<header class="barre">
+  <div class="conteneur">
+    <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+      <svg class="ic"><use href="#i-menu"/></svg>
+    </button>
+    <nav class="menu" id="menu" aria-label="Navigation principale">
+      <a href="#/" data-route="accueil">Accueil</a>
+      <a href="#/destination" data-route="orienter">S'orienter</a>
+      <a href="#/lieux" data-route="lieux">Les lieux</a>
+      <a href="#/apropos" data-route="apropos">À propos de nous</a>
+    </nav>
+    <a class="marque" href="#/" aria-label="Retour à l'accueil">
+      <span id="marque-nom">Guide du campus<small>Réseau 5G du campus</small></span>
+      <span class="logo"><svg class="ic"><use href="#i-boussole"/></svg></span>
+    </a>
+  </div>
 </header>
+
 <main>
   <!-- Message d'erreur général (campus.json introuvable ou invalide) -->
-  <div id="erreur" class="alerte cache"></div>
+  <div class="conteneur"><div id="erreur" class="alerte cache"></div></div>
 
-  <!-- Écran 1 : point de départ (seulement si le QR code ne l'a pas donné) -->
-  <section id="vue-depart" class="cache">
-    <h2>Où êtes-vous ?</h2>
-    <div class="grille" id="liste-departs"></div>
-  </section>
-
-  <!-- Écran 2 : choix de la destination, sans clavier -->
-  <section id="vue-choix" class="cache">
-    <div id="categories"></div>
-  </section>
-
-  <!-- Écran 3 : itinéraire -->
-  <section id="vue-trajet" class="cache">
-    <h2 id="titre-trajet" class="titre"></h2>
-    <div id="carte"></div>
-    <div id="pas-de-chemin" class="alerte cache"></div>
-    <div id="details">
-      <div class="resume">
-        <div><b id="distance"></b><span>à pied</span></div>
-        <div><b id="duree"></b><span>de marche</span></div>
+  <!-- ================= Accueil ================= -->
+  <section id="vue-accueil" class="cache">
+    <div class="hero">
+      <img id="photo-ecole" alt="Photo de l'école">
+      <div class="conteneur">
+        <span class="pastille"><i></i>Fonctionne sans Internet, sur le réseau 5G</span>
+        <h1 id="titre-accueil">Bienvenue sur le campus</h1>
+        <p id="sous-titre-accueil">Trouvez votre chemin en quelques secondes.</p>
+        <div class="boutons">
+          <a class="btn btn-plein" href="#/destination"><svg class="ic"><use href="#i-boussole"/></svg>S'orienter</a>
+          <a class="btn btn-verre" href="#/lieux">Voir les lieux</a>
+        </div>
       </div>
-      <div class="photo"><img id="photo" alt=""><p id="description"></p></div>
-      <ol class="etapes" id="etapes"></ol>
     </div>
-    <div class="actions">
-      <button id="btn-autre">Autre destination</button>
-      <button id="btn-depart" class="plein">Changer de départ</button>
+
+    <div class="conteneur">
+      <div class="chiffres">
+        <div><b id="nb-lieux">–</b><span>lieux</span></div>
+        <div><b id="nb-departs">–</b><span>points QR</span></div>
+        <div><b>0</b><span>saisie au clavier</span></div>
+      </div>
+
+      <section class="bloc">
+        <p class="surtitre">Comment ça marche</p>
+        <h2>Trois gestes pour arriver</h2>
+        <div class="etapes-accueil">
+          <div class="etape-carte"><div class="rond"><svg class="ic"><use href="#i-qr"/></svg></div>
+            <h3>1. Scannez le QR code</h3><p>Il est affiché à l'entrée, au parking et à l'arrêt de bus. Il indique où vous êtes, sans GPS.</p></div>
+          <div class="etape-carte"><div class="rond"><svg class="ic"><use href="#i-doigt"/></svg></div>
+            <h3>2. Touchez votre destination</h3><p>Scolarité, bibliothèque, amphithéâtres… Tous les lieux sont rangés par catégorie.</p></div>
+          <div class="etape-carte"><div class="rond"><svg class="ic"><use href="#i-route"/></svg></div>
+            <h3>3. Suivez le tracé vert</h3><p>Le plus court chemin s'affiche sur le plan, avec la distance, le temps de marche et une photo du bâtiment.</p></div>
+        </div>
+      </section>
+
+      <section class="bloc">
+        <p class="surtitre">Accès rapide</p>
+        <h2>Où voulez-vous aller ?</h2>
+        <div class="grille" id="acces-rapide"></div>
+      </section>
     </div>
   </section>
 
-  <!-- Mode édition (?edit=1) : outil pour relever les coordonnées des nœuds -->
-  <div id="edition" class="cache">
-    <b>Mode édition</b> : chaque clic sur le plan ajoute un point numéroté.
-    Copiez les lignes ci-dessous dans <code>"noeuds"</code> de <code>data/campus.json</code>.
-    Les nœuds et allées déjà définis sont affichés en gris.
-    <div id="controle-graphe"></div>
-    <textarea id="releves" readonly></textarea>
-  </div>
+  <!-- ================= Choix du départ ================= -->
+  <section id="vue-depart" class="cache">
+    <div class="conteneur page">
+      <div class="page-titre">
+        <h1>Où êtes-vous ?</h1>
+        <p>Choisissez le point le plus proche de vous. Astuce : scannez le QR code affiché sur place.</p>
+      </div>
+      <div class="grille" id="liste-departs"></div>
+    </div>
+  </section>
+
+  <!-- ================= Choix de la destination (sans clavier) ================= -->
+  <section id="vue-choix" class="cache">
+    <div class="conteneur page">
+      <div class="position">
+        <span class="point"></span>
+        <div><small>Vous êtes à :</small><b id="position"></b></div>
+        <button class="lien-btn" id="btn-changer">Changer</button>
+      </div>
+      <div class="page-titre" style="margin-top:18px"><h1>Où voulez-vous aller ?</h1></div>
+      <div id="categories"></div>
+    </div>
+  </section>
+
+  <!-- ================= Itinéraire (et carte du mode édition) ================= -->
+  <section id="vue-trajet" class="cache">
+    <div class="conteneur page">
+      <div class="trajet-entete"><small>Itinéraire</small><h1 id="titre-trajet"></h1></div>
+      <div id="carte"></div>
+      <div id="pas-de-chemin" class="alerte cache"></div>
+      <div id="details">
+        <div class="resume">
+          <div><span class="rond"><svg class="ic"><use href="#i-route"/></svg></span><span><b id="distance"></b>à pied</span></div>
+          <div><span class="rond"><svg class="ic"><use href="#i-horloge"/></svg></span><span><b id="duree"></b>de marche</span></div>
+        </div>
+        <div class="colonnes">
+          <div class="carte-blanche etapes-bloc"><h3>Les étapes</h3><ol class="etapes" id="etapes"></ol></div>
+          <div class="carte-blanche photo"><img id="photo" alt=""><div><b id="nom-lieu"></b><p id="description"></p></div></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-contour" id="btn-autre">Autre destination</button>
+        <button class="btn btn-vert" id="btn-depart">Changer de départ</button>
+      </div>
+
+      <!-- Mode édition (?edit=1) : outil pour relever les coordonnées des nœuds -->
+      <div id="edition" class="cache">
+        <b>Mode édition</b> : chaque clic sur le plan ajoute un point numéroté.
+        Copiez les lignes ci-dessous dans <code>"noeuds"</code> de <code>data/campus.json</code>.
+        Les nœuds et allées déjà définis sont affichés en gris.
+        <div id="controle-graphe"></div>
+        <textarea id="releves" readonly></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Les lieux ================= -->
+  <section id="vue-lieux" class="cache">
+    <div class="conteneur page">
+      <div class="page-titre">
+        <h1>Les lieux du campus</h1>
+        <p>Touchez « Y aller » pour afficher l'itinéraire.</p>
+      </div>
+      <div class="grille-lieux" id="grille-lieux"></div>
+    </div>
+  </section>
+
+  <!-- ================= À propos ================= -->
+  <section id="vue-apropos" class="cache">
+    <div class="conteneur page">
+      <div class="page-titre">
+        <h1>À propos de nous</h1>
+        <p>Un projet réalisé pour le hackathon 5G.</p>
+      </div>
+      <div class="texte-long">
+        <h2>Le projet</h2>
+        <p>Les nouveaux étudiants se perdent souvent les premiers jours. Le <b>Guide du campus</b> leur indique le plus court chemin
+          vers chaque bâtiment, à partir d'un simple QR code : pas d'application à installer, pas de GPS, pas de saisie au clavier.</p>
+      </div>
+      <div class="texte-long">
+        <h2>Un service local sur un réseau 5G</h2>
+        <p>Le site est hébergé sur le réseau de données d'un cœur 5G OpenAirInterface. Il fonctionne <b>sans aucun accès à Internet</b> :
+          plan, photos et calcul d'itinéraire sont tous servis localement.</p>
+        <div class="chaine"><span>Téléphone (UE)</span><i>→</i><span>gNB</span><i>→</i><span>UPF</span><i>→</i><span>Guide du campus</span></div>
+      </div>
+      <div class="texte-long">
+        <h2>Comment l'itinéraire est calculé</h2>
+        <p>Les allées du campus forment un graphe : des points (portes, carrefours) reliés par des chemins. L'algorithme de
+          <b>Dijkstra</b> y cherche le plus court chemin, directement dans votre navigateur. Le temps de marche est estimé à 4,5 km/h.</p>
+      </div>
+      <div class="texte-long">
+        <h2>L'équipe</h2>
+        <p>Élèves ingénieurs, cycle SID. <i>(Noms des membres à compléter.)</i></p>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer>
+  <div class="conteneur">Guide du campus · Hackathon 5G · Service local, sans Internet</div>
+</footer>
 
 <script src="vendor/leaflet.js"></script>
 <script>
 // =====================================================================
 //  Guide du campus : tout se passe dans le navigateur, sans Internet.
-//  Données : data/campus.json (plan, départs, lieux, graphe des allées)
+//  Données : data/campus.json (école, plan, départs, lieux, graphe des allées)
+//
+//  Navigation : la partie après « # » de l'adresse indique la page.
+//    #/              accueil
+//    #/depart        choix du point de départ
+//    #/destination   choix de la destination
+//    #/trajet/<id>   itinéraire vers le lieu <id>
+//    #/lieux         tous les lieux
+//    #/apropos       à propos
+//  Le bouton « Retour » du téléphone fonctionne donc naturellement.
 // =====================================================================
 
 const params = new URLSearchParams(location.search);
-const EDITION = params.has("edit");        // ?edit=1 -> outil de relevé de coordonnées
+const EDITION = params.has("edit");            // ?edit=1 -> outil de relevé de coordonnées
 const PHOTO_ABSENTE = "img/photo-absente.svg"; // image affichée si une photo manque
-let D;                                     // contenu de campus.json
-let carte, couche;                         // carte Leaflet et calque du trajet
-let idDepart = params.get("depart");       // fourni par le QR code : ?depart=entree
+let D;                                         // contenu de campus.json
+let carte, couche;                             // carte Leaflet et calque du trajet
+let idDepart = params.get("depart");           // fourni par le QR code : ?depart=entree
+let lieuEnAttente = null;                      // lieu choisi avant d'avoir indiqué le départ
 
 const $ = (id) => document.getElementById(id);
+const VUES = ["vue-accueil", "vue-depart", "vue-choix", "vue-trajet", "vue-lieux", "vue-apropos"];
 
 // Affiche un seul écran à la fois
 function montrer(vue) {
-  ["vue-depart", "vue-choix", "vue-trajet"].forEach(v => $(v).classList.toggle("cache", v !== vue));
+  VUES.forEach(v => $(v).classList.toggle("cache", v !== vue));
+  window.scrollTo(0, 0);
 }
 
 // Crée un élément HTML avec du texte (textContent : pas de risque d'injection HTML)
@@ -124,6 +400,34 @@ function el(balise, texte, classe) {
   if (classe) e.className = classe;
   return e;
 }
+
+// Pictogramme défini dans le <svg> en haut de la page
+function icone(nom) {
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("class", "ic");
+  const use = document.createElementNS(ns, "use");
+  use.setAttribute("href", "#i-" + nom);
+  svg.appendChild(use);
+  return svg;
+}
+
+// Image avec remplacement automatique si le fichier manque
+function image(src, alt, classe) {
+  const img = el("img", undefined, classe);
+  img.alt = alt;
+  img.loading = "lazy";
+  img.onerror = () => { img.onerror = null; img.src = PHOTO_ABSENTE; };
+  img.src = src || PHOTO_ABSENTE;
+  return img;
+}
+
+// Change de page (remplacer = true : sans créer d'entrée dans l'historique)
+function aller(adresse, remplacer) {
+  if (remplacer) location.replace(adresse); else location.hash = adresse;
+}
+
+const departCourant = () => D.departs.find(d => d.id === idDepart);
 
 // Le plan est une image : pixel (x, y) depuis le coin haut-gauche -> coordonnées Leaflet [lat, lng]
 const versLL = ([x, y]) => [D.carte.hauteur - y, x];
@@ -213,63 +517,98 @@ function initCarte() {
 }
 
 // ---------------------------------------------------------------------
-//  Écran 1 : choix du point de départ
+//  Accueil
+// ---------------------------------------------------------------------
+function remplirAccueil() {
+  const ecole = D.ecole || {};
+  if (ecole.titreAccueil) $("titre-accueil").textContent = ecole.titreAccueil;
+  if (ecole.sousTitre) $("sous-titre-accueil").textContent = ecole.sousTitre;
+  if (ecole.nom) $("marque-nom").firstChild.textContent = "Guide " + ecole.nom;
+  const photo = $("photo-ecole");
+  photo.onerror = () => photo.classList.add("cache");   // sans photo : fond vert uni
+  photo.src = ecole.photo || "img/ept.svg";
+
+  $("nb-lieux").textContent = D.lieux.length;
+  $("nb-departs").textContent = D.departs.length;
+
+  // Accès rapide : les 6 premiers lieux du fichier
+  $("acces-rapide").innerHTML = "";
+  D.lieux.slice(0, 6).forEach(l => $("acces-rapide").appendChild(boutonLieu(l)));
+}
+
+// ---------------------------------------------------------------------
+//  Choix du point de départ
 // ---------------------------------------------------------------------
 function afficherDeparts() {
   $("liste-departs").innerHTML = "";
   D.departs.forEach(d => {
-    const b = el("button", d.nom, "choix");
-    b.onclick = () => { idDepart = d.id; memoriserDepart(); afficherChoix(); };
+    const b = el("button", undefined, "choix");
+    const puce = el("span", undefined, "puce"); puce.appendChild(icone("pin"));
+    b.append(puce, el("span", d.nom, "texte"));
+    b.onclick = () => {
+      idDepart = d.id;
+      memoriserDepart();
+      // Si un lieu avait déjà été choisi (page « Les lieux »), on y va directement
+      if (lieuEnAttente) { const l = lieuEnAttente; lieuEnAttente = null; aller("#/trajet/" + l, true); }
+      else aller("#/destination", true);
+    };
     $("liste-departs").appendChild(b);
   });
-  $("position").textContent = "Choisissez où vous êtes";
   montrer("vue-depart");
-  window.scrollTo(0, 0);
 }
 
 // Met le départ dans l'adresse : un rechargement de la page le conserve
 function memoriserDepart() {
-  history.replaceState(null, "", "?depart=" + encodeURIComponent(idDepart));
+  history.replaceState(null, "", "?depart=" + encodeURIComponent(idDepart) + location.hash);
 }
 
 // ---------------------------------------------------------------------
-//  Écran 2 : choix de la destination (boutons regroupés par catégorie)
+//  Choix de la destination (boutons regroupés par catégorie)
 // ---------------------------------------------------------------------
-function afficherChoix() {
-  const dep = D.departs.find(d => d.id === idDepart);
-  if (!dep) return afficherDeparts();   // départ absent ou inconnu dans l'URL
-  $("position").textContent = "Vous êtes à : " + dep.nom;
 
-  const cats = {};                       // { "Cours": [lieu, lieu], ... }
+// Bouton d'un lieu : vignette photo, nom en gras, description en petit
+function boutonLieu(l) {
+  const b = el("button", undefined, "choix");
+  const texte = el("span", l.nom, "texte");
+  if (l.description) texte.appendChild(el("small", l.description));
+  const fleche = icone("fleche"); fleche.classList.add("fleche");
+  b.append(image(l.photo, "", "vignette"), texte, fleche);
+  b.onclick = () => aller("#/trajet/" + encodeURIComponent(l.id));
+  return b;
+}
+
+function afficherChoix() {
+  const dep = departCourant();
+  if (!dep) return aller("#/depart", true);   // départ absent ou inconnu dans l'URL
+  $("position").textContent = dep.nom;
+
+  const cats = {};                             // { "Cours": [lieu, lieu], ... }
   D.lieux.forEach(l => (cats[l.categorie || "Autres"] ||= []).push(l));
 
   $("categories").innerHTML = "";
   Object.entries(cats).forEach(([cat, lieux]) => {
     const grille = el("div", undefined, "grille");
-    lieux.forEach(l => {
-      const b = el("button", l.nom, "choix");
-      if (l.description) b.appendChild(el("small", l.description));
-      b.onclick = () => afficherTrajet(l);
-      grille.appendChild(b);
-    });
-    $("categories").append(el("h2", cat), grille);
+    lieux.forEach(l => grille.appendChild(boutonLieu(l)));
+    $("categories").append(el("h2", cat, "categorie"), grille);
   });
   montrer("vue-choix");
-  window.scrollTo(0, 0);
 }
 
 // ---------------------------------------------------------------------
-//  Écran 3 : itinéraire
+//  Itinéraire
 // ---------------------------------------------------------------------
-function afficherTrajet(lieu) {
-  const dep = D.departs.find(d => d.id === idDepart);
+function afficherTrajet(idLieu) {
+  const lieu = D.lieux.find(l => l.id === idLieu);
+  if (!lieu) return aller("#/destination", true);
+  const dep = departCourant();
+  if (!dep) { lieuEnAttente = lieu.id; return aller("#/depart", true); }
+
   const r = plusCourtChemin(dep.noeud, lieu.noeud);
   montrer("vue-trajet");
   initCarte();
   carte.invalidateSize();               // la carte vient d'apparaître : Leaflet recalcule sa taille
   couche.clearLayers();
   $("titre-trajet").textContent = `${dep.nom} → ${lieu.nom}`;
-  window.scrollTo(0, 0);
 
   // Aucun chemin : message clair, on n'affiche pas de résultat faux
   $("pas-de-chemin").classList.toggle("cache", !!r);
@@ -306,6 +645,7 @@ function afficherTrajet(lieu) {
   img.onerror = () => { img.onerror = null; img.src = PHOTO_ABSENTE; };
   img.src = lieu.photo || PHOTO_ABSENTE;
   img.alt = "Photo : " + lieu.nom;
+  $("nom-lieu").textContent = lieu.nom;
   $("description").textContent = lieu.description || "";
 
   // Étapes : départ, repères nommés traversés, arrivée
@@ -327,15 +667,65 @@ function afficherTrajet(lieu) {
   ajouterEtape("Arrivée : ", lieu.nom, " (bâtiment de la photo)");
 }
 
-$("btn-autre").onclick = afficherChoix;
-$("btn-depart").onclick = afficherDeparts;
+// ---------------------------------------------------------------------
+//  Page « Les lieux » : une carte par lieu, avec photo
+// ---------------------------------------------------------------------
+function afficherLieux() {
+  const grille = $("grille-lieux");
+  grille.innerHTML = "";
+  D.lieux.forEach(l => {
+    const carteLieu = el("article", undefined, "lieu");
+    const corps = el("div");
+    const lien = el("a", "Y aller", "btn btn-vert");
+    lien.href = "#/trajet/" + encodeURIComponent(l.id);
+    lien.appendChild(icone("fleche"));
+    corps.append(el("span", l.categorie || "Autres", "etiquette"), el("h3", l.nom), el("p", l.description || ""), lien);
+    carteLieu.append(image(l.photo, "Photo : " + l.nom), corps);
+    grille.appendChild(carteLieu);
+  });
+  montrer("vue-lieux");
+}
+
+// ---------------------------------------------------------------------
+//  Routeur : lit l'adresse après « # » et affiche la bonne page
+// ---------------------------------------------------------------------
+let pageAffichee = null;   // évite d'afficher deux fois la même page (hashchange + popstate)
+function router() {
+  if (location.hash === pageAffichee) return;
+  pageAffichee = location.hash;
+  const [page, param] = location.hash.replace(/^#\/?/, "").split("/");
+  fermerMenu();
+  if (page === "depart") afficherDeparts();
+  else if (page === "destination") afficherChoix();
+  else if (page === "trajet") afficherTrajet(decodeURIComponent(param || ""));
+  else if (page === "lieux") afficherLieux();
+  else if (page === "apropos") montrer("vue-apropos");
+  else montrer("vue-accueil");
+
+  // Lien actif dans le menu
+  const rubrique = ["depart", "destination", "trajet"].includes(page) ? "orienter" : (page || "accueil");
+  document.querySelectorAll("nav.menu a").forEach(a => a.classList.toggle("actif", a.dataset.route === rubrique));
+}
+
+// Menu mobile (bouton à trois traits)
+function fermerMenu() {
+  $("menu").classList.remove("ouvert");
+  $("burger").setAttribute("aria-expanded", "false");
+}
+$("burger").onclick = () => {
+  const ouvert = $("menu").classList.toggle("ouvert");
+  $("burger").setAttribute("aria-expanded", String(ouvert));
+};
+
+$("btn-autre").onclick = () => aller("#/destination");
+$("btn-depart").onclick = () => aller("#/depart");
+$("btn-changer").onclick = () => aller("#/depart");
 
 // ---------------------------------------------------------------------
 //  Mode édition : chaque clic donne les coordonnées en pixels du plan
 // ---------------------------------------------------------------------
 function demarrerEdition() {
   document.body.classList.add("edition");
-  $("position").textContent = "Mode édition : relevé des nœuds du graphe";
   $("edition").classList.remove("cache");
   montrer("vue-trajet");
   initCarte();
@@ -378,10 +768,9 @@ function controlerGraphe() {
 //  Démarrage : chargement de campus.json
 // ---------------------------------------------------------------------
 function afficherErreur(texte) {
-  $("position").textContent = "Le guide n'a pas pu démarrer";
   $("erreur").textContent = texte;
   $("erreur").classList.remove("cache");
-  ["vue-depart", "vue-choix", "vue-trajet"].forEach(v => $(v).classList.add("cache"));
+  VUES.forEach(v => $(v).classList.add("cache"));
 }
 
 fetch("data/campus.json")
@@ -395,8 +784,14 @@ fetch("data/campus.json")
     const problemes = verifierDonnees(d);
     if (problemes.length) throw new Error("data/campus.json contient des erreurs : " + problemes.join(" ; ") + ".");
     D = d;
-    if (EDITION) demarrerEdition();
-    else afficherChoix();               // affiche l'écran de départ si ?depart= est absent ou inconnu
+    if (EDITION) return demarrerEdition();
+    remplirAccueil();
+    // Arrivée par un QR code (?depart=...) sans page précise : on va droit au choix de la destination
+    if (!location.hash && departCourant()) history.replaceState(null, "", location.search + "#/destination");
+    // Changement de page : lien cliqué, bouton « Retour » du téléphone...
+    window.addEventListener("hashchange", router);
+    window.addEventListener("popstate", router);
+    router();
   })
   .catch(err => {
     // Page ouverte en double-cliquant (file://) : le navigateur bloque fetch()

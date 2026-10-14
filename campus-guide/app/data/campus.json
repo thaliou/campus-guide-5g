@@ -1,4 +1,10 @@
 {
+ "ecole": {
+  "nom": "EPT",
+  "titreAccueil": "Bienvenue à l'EPT",
+  "sousTitre": "Trouvez votre chemin sur le campus en quelques secondes : choisissez une destination, suivez le tracé.",
+  "photo": "img/ept.svg"
+ },
  "carte": {
   "image": "img/plan.svg",
   "largeur": 1000,
