@@ -1,0 +1,21 @@
+# Ajoute le guide du campus au réseau 5G de la formation.
+# À lancer avec le docker-compose fourni (même dossier) :
+#   docker compose -f docker-compose.yaml -f docker-compose.campus.yml up -d
+#
+# Le conteneur est placé sur le réseau de données (N6), à côté de oai-ext-dn :
+# un UE l'atteint en passant par la gNB, le tunnel GTP-U (N3) puis l'UPF.
+services:
+    campus-guide:
+        container_name: "campus-guide"
+        image: nginx:1.27-alpine
+        cap_add:
+            - NET_ADMIN
+        # Comme oai-ext-dn : les réponses vers les UE (10.0.0.0/16) repartent par l'UPF
+        entrypoint: /bin/sh -c "ip route add 10.0.0.0/16 via 192.168.70.134; exec nginx -g 'daemon off;'"
+        volumes:
+            - ./campus-guide/app:/usr/share/nginx/html:ro
+        depends_on:
+            - oai-upf
+        networks:
+            public_net:
+                ipv4_address: 192.168.70.140

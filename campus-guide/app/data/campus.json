@@ -1,0 +1,305 @@
+{
+ "carte": {
+  "image": "img/plan.svg",
+  "largeur": 1000,
+  "hauteur": 700,
+  "metresParPixel": 0.5,
+  "vitesseMarcheKmh": 4.5
+ },
+ "departs": [
+  {
+   "id": "entree",
+   "nom": "Entrée principale",
+   "noeud": "entree"
+  },
+  {
+   "id": "parking",
+   "nom": "Parking",
+   "noeud": "parking"
+  },
+  {
+   "id": "bus",
+   "nom": "Arrêt de bus",
+   "noeud": "bus"
+  }
+ ],
+ "lieux": [
+  {
+   "id": "scolarite",
+   "nom": "Scolarité / Administration",
+   "categorie": "Démarches",
+   "noeud": "d_scol",
+   "photo": "img/scolarite.svg",
+   "description": "Inscriptions, cartes d'étudiant, certificats de scolarité."
+  },
+  {
+   "id": "bibliotheque",
+   "nom": "Bibliothèque",
+   "categorie": "Vie étudiante",
+   "noeud": "d_bib",
+   "photo": "img/bibliotheque.svg",
+   "description": "Prêt d'ouvrages, salle de lecture, postes informatiques."
+  },
+  {
+   "id": "restaurant",
+   "nom": "Restaurant universitaire",
+   "categorie": "Vie étudiante",
+   "noeud": "d_resto",
+   "photo": "img/restaurant.svg",
+   "description": "Petit-déjeuner, déjeuner et dîner."
+  },
+  {
+   "id": "priere",
+   "nom": "Salle de prière",
+   "categorie": "Vie étudiante",
+   "noeud": "d_priere",
+   "photo": "img/priere.svg",
+   "description": "Ouverte toute la journée."
+  },
+  {
+   "id": "infirmerie",
+   "nom": "Infirmerie",
+   "categorie": "Santé",
+   "noeud": "d_inf",
+   "photo": "img/infirmerie.svg",
+   "description": "Premiers soins et orientation médicale."
+  },
+  {
+   "id": "amphiA",
+   "nom": "Amphithéâtre A",
+   "categorie": "Cours",
+   "noeud": "d_amphiA",
+   "photo": "img/amphiA.svg",
+   "description": "Grand amphi des cours magistraux."
+  },
+  {
+   "id": "amphiB",
+   "nom": "Amphithéâtre B",
+   "categorie": "Cours",
+   "noeud": "d_amphiB",
+   "photo": "img/amphiB.svg",
+   "description": "Amphi des cours de tronc commun."
+  },
+  {
+   "id": "labo",
+   "nom": "Laboratoire informatique",
+   "categorie": "Cours",
+   "noeud": "d_labo",
+   "photo": "img/labo.svg",
+   "description": "Salles machines et TP réseaux."
+  },
+  {
+   "id": "td",
+   "nom": "Bloc des salles de TD",
+   "categorie": "Cours",
+   "noeud": "d_td",
+   "photo": "img/td.svg",
+   "description": "Salles de TD numérotées 1 à 12."
+  }
+ ],
+ "noeuds": {
+  "entree": {
+   "xy": [
+    500,
+    650
+   ],
+   "nom": "Entrée principale"
+  },
+  "parking": {
+   "xy": [
+    170,
+    650
+   ],
+   "nom": "Parking"
+  },
+  "bus": {
+   "xy": [
+    840,
+    650
+   ],
+   "nom": "Arrêt de bus"
+  },
+  "c_central": {
+   "xy": [
+    500,
+    480
+   ],
+   "nom": "Carrefour central"
+  },
+  "c_nord": {
+   "xy": [
+    500,
+    260
+   ],
+   "nom": "Carrefour nord"
+  },
+  "a_ouest": {
+   "xy": [
+    170,
+    480
+   ],
+   "nom": "Allée ouest"
+  },
+  "a_est": {
+   "xy": [
+    840,
+    480
+   ],
+   "nom": "Allée est"
+  },
+  "h_ouest": {
+   "xy": [
+    170,
+    260
+   ],
+   "nom": "Angle nord-ouest"
+  },
+  "h_est": {
+   "xy": [
+    840,
+    260
+   ],
+   "nom": "Angle nord-est"
+  },
+  "d_resto": {
+   "xy": [
+    210,
+    480
+   ]
+  },
+  "d_bib": {
+   "xy": [
+    300,
+    480
+   ]
+  },
+  "d_scol": {
+   "xy": [
+    400,
+    480
+   ]
+  },
+  "d_inf": {
+   "xy": [
+    600,
+    480
+   ]
+  },
+  "d_amphiA": {
+   "xy": [
+    700,
+    480
+   ]
+  },
+  "d_amphiB": {
+   "xy": [
+    320,
+    260
+   ]
+  },
+  "d_labo": {
+   "xy": [
+    680,
+    260
+   ]
+  },
+  "d_priere": {
+   "xy": [
+    170,
+    370
+   ]
+  },
+  "d_td": {
+   "xy": [
+    840,
+    370
+   ]
+  }
+ },
+ "aretes": [
+  [
+   "entree",
+   "c_central"
+  ],
+  [
+   "c_central",
+   "c_nord"
+  ],
+  [
+   "a_ouest",
+   "d_resto"
+  ],
+  [
+   "d_resto",
+   "d_bib"
+  ],
+  [
+   "d_bib",
+   "d_scol"
+  ],
+  [
+   "d_scol",
+   "c_central"
+  ],
+  [
+   "c_central",
+   "d_inf"
+  ],
+  [
+   "d_inf",
+   "d_amphiA"
+  ],
+  [
+   "d_amphiA",
+   "a_est"
+  ],
+  [
+   "h_ouest",
+   "d_amphiB"
+  ],
+  [
+   "d_amphiB",
+   "c_nord"
+  ],
+  [
+   "c_nord",
+   "d_labo"
+  ],
+  [
+   "d_labo",
+   "h_est"
+  ],
+  [
+   "h_ouest",
+   "d_priere"
+  ],
+  [
+   "d_priere",
+   "a_ouest"
+  ],
+  [
+   "a_ouest",
+   "parking"
+  ],
+  [
+   "h_est",
+   "d_td"
+  ],
+  [
+   "d_td",
+   "a_est"
+  ],
+  [
+   "a_est",
+   "bus"
+  ],
+  [
+   "parking",
+   "entree"
+  ],
+  [
+   "entree",
+   "bus"
+  ]
+ ]
+}
