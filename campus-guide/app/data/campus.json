@@ -6,10 +6,10 @@
   "photo": "img/ept.svg"
  },
  "carte": {
-  "image": "img/plan.svg",
-  "largeur": 1000,
-  "hauteur": 700,
-  "metresParPixel": 0.5,
+  "image": "img/img-plan/plan-campus-ept.svg",
+  "largeur": 1171,
+  "hauteur": 1300,
+  "metresParPixel": 0.6,
   "vitesseMarcheKmh": 4.5
  },
  "departs": [
@@ -19,293 +19,684 @@
    "noeud": "entree"
   },
   {
-   "id": "parking",
-   "nom": "Parking",
-   "noeud": "parking"
+   "id": "direction",
+   "nom": "Direction",
+   "noeud": "d_dir"
   },
   {
-   "id": "bus",
-   "nom": "Arrêt de bus",
-   "noeud": "bus"
+   "id": "cpge",
+   "nom": "CPGE",
+   "noeud": "d_cpge"
+  },
+  {
+   "id": "restaurant",
+   "nom": "Restaurant",
+   "noeud": "d_resto"
   }
  ],
  "lieux": [
   {
-   "id": "scolarite",
-   "nom": "Scolarité / Administration",
-   "categorie": "Démarches",
-   "noeud": "d_scol",
-   "photo": "img/scolarite.svg",
-   "description": "Inscriptions, cartes d'étudiant, certificats de scolarité."
+   "id": "direction",
+   "nom": "Direction",
+   "categorie": "Administration",
+   "noeud": "d_dir",
+   "photo": "img/Direction.jpeg",
+   "description": "Direction de l'école et services administratifs."
   },
   {
-   "id": "bibliotheque",
-   "nom": "Bibliothèque",
-   "categorie": "Vie étudiante",
-   "noeud": "d_bib",
-   "photo": "img/bibliotheque.svg",
-   "description": "Prêt d'ouvrages, salle de lecture, postes informatiques."
+   "id": "auditorium",
+   "nom": "Auditorium",
+   "categorie": "Cours",
+   "noeud": "d_audi",
+   "photo": "img/Auditorium.jpeg",
+   "description": "Conférences, soutenances et cours magistraux."
+  },
+  {
+   "id": "cpge",
+   "nom": "CPGE",
+   "categorie": "Cours",
+   "noeud": "d_cpge",
+   "photo": "img/Classes Préparatoires.jpeg",
+   "description": "Classes préparatoires aux grandes écoles."
+  },
+  {
+   "id": "blocB",
+   "nom": "Bloc B",
+   "categorie": "Cours",
+   "noeud": "d_blocB",
+   "photo": "img/Campus Pédagogique - Bâtiment B.jpeg",
+   "description": "Bâtiment d'enseignement."
+  },
+  {
+   "id": "blocC",
+   "nom": "Bloc C",
+   "categorie": "Cours",
+   "noeud": "d_blocC",
+   "photo": "img/Campus Pédagogique - Bâtiment C.jpeg",
+   "description": "Bâtiment d'enseignement."
+  },
+  {
+   "id": "blocD",
+   "nom": "Bloc D",
+   "categorie": "Cours",
+   "noeud": "d_blocD",
+   "photo": "img/Campus Pédagogique - Bâtiment D.jpeg",
+   "description": "Bâtiment d'enseignement."
+  },
+  {
+   "id": "blocF",
+   "nom": "Bloc F",
+   "categorie": "Cours",
+   "noeud": "d_blocF",
+   "photo": "img/Campus Pédagogique - Bloc F.jpeg",
+   "description": "Bâtiment d'enseignement, au nord du campus."
   },
   {
    "id": "restaurant",
-   "nom": "Restaurant universitaire",
+   "nom": "Restaurant",
    "categorie": "Vie étudiante",
    "noeud": "d_resto",
-   "photo": "img/restaurant.svg",
-   "description": "Petit-déjeuner, déjeuner et dîner."
+   "photo": "img/Restaurant des Polytechniciens.jpeg",
+   "description": "Restauration des étudiants."
   },
   {
-   "id": "priere",
-   "nom": "Salle de prière",
-   "categorie": "Vie étudiante",
-   "noeud": "d_priere",
-   "photo": "img/priere.svg",
-   "description": "Ouverte toute la journée."
+   "id": "h1",
+   "nom": "Pavillon H1",
+   "categorie": "Hébergement",
+   "noeud": "d_h1",
+   "photo": "img/Campus Social -H1.jpeg",
+   "description": "Pavillon d'hébergement des étudiants."
   },
   {
-   "id": "infirmerie",
-   "nom": "Infirmerie",
-   "categorie": "Santé",
-   "noeud": "d_inf",
-   "photo": "img/infirmerie.svg",
-   "description": "Premiers soins et orientation médicale."
+   "id": "h2",
+   "nom": "Pavillon H2",
+   "categorie": "Hébergement",
+   "noeud": "d_h2",
+   "photo": "img/Campus Social - H2.jpeg",
+   "description": "Pavillon d'hébergement des étudiants."
   },
   {
-   "id": "amphiA",
-   "nom": "Amphithéâtre A",
-   "categorie": "Cours",
-   "noeud": "d_amphiA",
-   "photo": "img/amphiA.svg",
-   "description": "Grand amphi des cours magistraux."
+   "id": "h3",
+   "nom": "Pavillon H3",
+   "categorie": "Hébergement",
+   "noeud": "d_h3",
+   "photo": "img/Campus Social - H3.jpeg",
+   "description": "Pavillon d'hébergement des étudiants."
   },
   {
-   "id": "amphiB",
-   "nom": "Amphithéâtre B",
-   "categorie": "Cours",
-   "noeud": "d_amphiB",
-   "photo": "img/amphiB.svg",
-   "description": "Amphi des cours de tronc commun."
+   "id": "h4",
+   "nom": "Pavillon H4",
+   "categorie": "Hébergement",
+   "noeud": "d_h4",
+   "photo": "img/Campus Social - H4.jpeg",
+   "description": "Pavillon d'hébergement des étudiants."
   },
   {
-   "id": "labo",
-   "nom": "Laboratoire informatique",
-   "categorie": "Cours",
-   "noeud": "d_labo",
-   "photo": "img/labo.svg",
-   "description": "Salles machines et TP réseaux."
+   "id": "canada",
+   "nom": "Canada",
+   "categorie": "Hébergement",
+   "noeud": "d_canada",
+   "description": "Quartier résidentiel à l'est du campus."
   },
   {
-   "id": "td",
-   "nom": "Bloc des salles de TD",
-   "categorie": "Cours",
-   "noeud": "d_td",
-   "photo": "img/td.svg",
-   "description": "Salles de TD numérotées 1 à 12."
+   "id": "piscine",
+   "nom": "Piscine",
+   "categorie": "Sport",
+   "noeud": "d_piscine",
+   "photo": "img/Piscine.jpeg",
+   "description": "Piscine du campus."
+  },
+  {
+   "id": "omnisports",
+   "nom": "Terrain omnisports",
+   "categorie": "Sport",
+   "noeud": "d_omni",
+   "description": "Basket, hand et volley."
+  },
+  {
+   "id": "football",
+   "nom": "Terrain de football",
+   "categorie": "Sport",
+   "noeud": "d_foot",
+   "description": "Stade avec piste d'athlétisme."
   }
  ],
  "noeuds": {
   "entree": {
    "xy": [
-    500,
-    650
+    608,
+    1255
    ],
    "nom": "Entrée principale"
   },
-  "parking": {
+  "r_est": {
    "xy": [
-    170,
-    650
+    606,
+    1112
    ],
-   "nom": "Parking"
+   "nom": "Carrefour de Canada"
   },
-  "bus": {
+  "r_boucle_sud": {
    "xy": [
-    840,
-    650
-   ],
-   "nom": "Arrêt de bus"
+    605,
+    1062
+   ]
   },
-  "c_central": {
+  "r_boucle_nord": {
    "xy": [
-    500,
-    480
+    604,
+    925
    ],
-   "nom": "Carrefour central"
+   "nom": "Carrefour des sports"
   },
-  "c_nord": {
+  "r_h": {
    "xy": [
-    500,
-    260
+    603,
+    685
    ],
-   "nom": "Carrefour nord"
+   "nom": "Allée des pavillons"
   },
-  "a_ouest": {
+  "r_cpge": {
    "xy": [
-    170,
-    480
-   ],
-   "nom": "Allée ouest"
+    603,
+    595
+   ]
   },
-  "a_est": {
+  "r_virage": {
    "xy": [
-    840,
-    480
-   ],
-   "nom": "Allée est"
+    612,
+    570
+   ]
   },
-  "h_ouest": {
+  "r_dir": {
    "xy": [
-    170,
-    260
-   ],
-   "nom": "Angle nord-ouest"
+    650,
+    500
+   ]
   },
-  "h_est": {
+  "r_700": {
    "xy": [
-    840,
-    260
+    700,
+    455
+   ]
+  },
+  "c_audi": {
+   "xy": [
+    735,
+    432
    ],
-   "nom": "Angle nord-est"
+   "nom": "Carrefour de l'Auditorium"
+  },
+  "rn_1": {
+   "xy": [
+    690,
+    398
+   ]
+  },
+  "rn_2": {
+   "xy": [
+    628,
+    332
+   ]
+  },
+  "rn_3": {
+   "xy": [
+    585,
+    270
+   ]
+  },
+  "rn_4": {
+   "xy": [
+    562,
+    220
+   ]
+  },
+  "rn_5": {
+   "xy": [
+    558,
+    130
+   ]
+  },
+  "rn_6": {
+   "xy": [
+    548,
+    70
+   ]
+  },
+  "rn_7": {
+   "xy": [
+    520,
+    46
+   ]
+  },
+  "d_blocF": {
+   "xy": [
+    455,
+    43
+   ]
+  },
+  "re_1": {
+   "xy": [
+    705,
+    1112
+   ]
+  },
+  "re_2": {
+   "xy": [
+    738,
+    1075
+   ]
+  },
+  "re_3": {
+   "xy": [
+    740,
+    950
+   ]
+  },
+  "re_4": {
+   "xy": [
+    790,
+    885
+   ]
+  },
+  "d_canada": {
+   "xy": [
+    900,
+    865
+   ]
+  },
+  "d_omni": {
+   "xy": [
+    485,
+    925
+   ]
+  },
+  "b_sable": {
+   "xy": [
+    440,
+    925
+   ]
+  },
+  "b_1": {
+   "xy": [
+    408,
+    955
+   ]
+  },
+  "b_2": {
+   "xy": [
+    412,
+    1020
+   ]
+  },
+  "b_3": {
+   "xy": [
+    450,
+    1060
+   ]
+  },
+  "a_bas": {
+   "xy": [
+    440,
+    840
+   ]
   },
   "d_resto": {
    "xy": [
-    210,
-    480
+    440,
+    825
    ]
   },
-  "d_bib": {
+  "d_piscine": {
    "xy": [
-    300,
-    480
+    440,
+    795
    ]
   },
-  "d_scol": {
+  "a_haut": {
    "xy": [
-    400,
-    480
+    440,
+    770
    ]
   },
-  "d_inf": {
+  "h_440": {
    "xy": [
-    600,
-    480
+    440,
+    685
    ]
   },
-  "d_amphiA": {
+  "d_h1": {
    "xy": [
-    700,
-    480
+    383,
+    685
    ]
   },
-  "d_amphiB": {
+  "d_h2": {
    "xy": [
-    320,
-    260
+    325,
+    685
    ]
   },
-  "d_labo": {
+  "h_230": {
    "xy": [
-    680,
-    260
+    230,
+    685
    ]
   },
-  "d_priere": {
+  "d_h3": {
    "xy": [
-    170,
-    370
+    269,
+    685
    ]
   },
-  "d_td": {
+  "d_h4": {
    "xy": [
-    840,
-    370
+    215,
+    685
+   ]
+  },
+  "d_cpge": {
+   "xy": [
+    540,
+    584
+   ]
+  },
+  "cpge_o": {
+   "xy": [
+    520,
+    580
+   ]
+  },
+  "p2_e": {
+   "xy": [
+    470,
+    580
+   ]
+  },
+  "p2_o": {
+   "xy": [
+    230,
+    580
+   ]
+  },
+  "p2_bas": {
+   "xy": [
+    230,
+    592
+   ]
+  },
+  "place": {
+   "xy": [
+    515,
+    505
+   ],
+   "nom": "Place de la Direction"
+  },
+  "d_dir": {
+   "xy": [
+    553,
+    512
+   ]
+  },
+  "d_blocB": {
+   "xy": [
+    527,
+    452
+   ]
+  },
+  "d_blocC": {
+   "xy": [
+    466,
+    450
+   ]
+  },
+  "d_blocD": {
+   "xy": [
+    401,
+    450
+   ]
+  },
+  "d_foot": {
+   "xy": [
+    330,
+    450
+   ]
+  },
+  "p4_s": {
+   "xy": [
+    565,
+    450
+   ]
+  },
+  "p4_n": {
+   "xy": [
+    565,
+    425
+   ]
+  },
+  "d_audi": {
+   "xy": [
+    603,
+    425
    ]
   }
  },
  "aretes": [
   [
    "entree",
-   "c_central"
+   "r_est"
   ],
   [
-   "c_central",
-   "c_nord"
+   "r_est",
+   "r_boucle_sud"
   ],
   [
-   "a_ouest",
+   "r_boucle_sud",
+   "r_boucle_nord"
+  ],
+  [
+   "r_boucle_nord",
+   "r_h"
+  ],
+  [
+   "r_h",
+   "r_cpge"
+  ],
+  [
+   "r_cpge",
+   "r_virage"
+  ],
+  [
+   "r_virage",
+   "r_dir"
+  ],
+  [
+   "r_dir",
+   "r_700"
+  ],
+  [
+   "r_700",
+   "c_audi"
+  ],
+  [
+   "c_audi",
+   "rn_1"
+  ],
+  [
+   "rn_1",
+   "rn_2"
+  ],
+  [
+   "rn_2",
+   "rn_3"
+  ],
+  [
+   "rn_3",
+   "rn_4"
+  ],
+  [
+   "rn_4",
+   "rn_5"
+  ],
+  [
+   "rn_5",
+   "rn_6"
+  ],
+  [
+   "rn_6",
+   "rn_7"
+  ],
+  [
+   "rn_7",
+   "d_blocF"
+  ],
+  [
+   "r_est",
+   "re_1"
+  ],
+  [
+   "re_1",
+   "re_2"
+  ],
+  [
+   "re_2",
+   "re_3"
+  ],
+  [
+   "re_3",
+   "re_4"
+  ],
+  [
+   "re_4",
+   "d_canada"
+  ],
+  [
+   "r_boucle_nord",
+   "d_omni"
+  ],
+  [
+   "d_omni",
+   "b_sable"
+  ],
+  [
+   "b_sable",
+   "b_1"
+  ],
+  [
+   "b_1",
+   "b_2"
+  ],
+  [
+   "b_2",
+   "b_3"
+  ],
+  [
+   "b_3",
+   "r_boucle_sud"
+  ],
+  [
+   "b_sable",
+   "a_bas"
+  ],
+  [
+   "a_bas",
    "d_resto"
   ],
   [
    "d_resto",
-   "d_bib"
+   "d_piscine"
   ],
   [
-   "d_bib",
-   "d_scol"
+   "d_piscine",
+   "a_haut"
   ],
   [
-   "d_scol",
-   "c_central"
+   "a_haut",
+   "h_440"
   ],
   [
-   "c_central",
-   "d_inf"
+   "r_h",
+   "h_440"
   ],
   [
-   "d_inf",
-   "d_amphiA"
+   "h_440",
+   "d_h1"
   ],
   [
-   "d_amphiA",
-   "a_est"
+   "d_h1",
+   "d_h2"
   ],
   [
-   "h_ouest",
-   "d_amphiB"
+   "d_h2",
+   "d_h3"
   ],
   [
-   "d_amphiB",
-   "c_nord"
+   "d_h3",
+   "h_230"
   ],
   [
-   "c_nord",
-   "d_labo"
+   "h_230",
+   "d_h4"
   ],
   [
-   "d_labo",
-   "h_est"
+   "r_cpge",
+   "d_cpge"
   ],
   [
-   "h_ouest",
-   "d_priere"
+   "d_cpge",
+   "cpge_o"
   ],
   [
-   "d_priere",
-   "a_ouest"
+   "cpge_o",
+   "p2_e"
   ],
   [
-   "a_ouest",
-   "parking"
+   "p2_e",
+   "p2_o"
   ],
   [
-   "h_est",
-   "d_td"
+   "p2_o",
+   "p2_bas"
   ],
   [
-   "d_td",
-   "a_est"
+   "p2_bas",
+   "h_230"
   ],
   [
-   "a_est",
-   "bus"
+   "cpge_o",
+   "place"
   ],
   [
-   "parking",
-   "entree"
+   "place",
+   "d_dir"
   ],
   [
-   "entree",
-   "bus"
+   "place",
+   "d_blocB"
+  ],
+  [
+   "d_foot",
+   "d_blocD"
+  ],
+  [
+   "d_blocD",
+   "d_blocC"
+  ],
+  [
+   "d_blocC",
+   "d_blocB"
+  ],
+  [
+   "d_blocB",
+   "p4_s"
+  ],
+  [
+   "p4_s",
+   "p4_n"
+  ],
+  [
+   "p4_n",
+   "d_audi"
   ]
  ]
 }

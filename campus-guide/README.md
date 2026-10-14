@@ -16,7 +16,9 @@ UE (10.0.x.x) --Uu--> gNB --N3 / GTP-U--> oai-upf (192.168.70.134) --N6--> campu
 | `app/index.html` | Application complète (HTML + CSS + JavaScript commenté) |
 | `app/data/campus.json` | **Seul fichier à modifier pour changer de campus** : plan, départs, lieux, graphe des allées |
 | `app/img/ept.svg` | Photo **provisoire** de l'école (page d'accueil), à remplacer par une vraie photo |
-| `app/img/plan.svg` | Plan **schématique** à remplacer par le vrai plan de l'école |
+| `app/img/img-plan/plan-campus-ept.svg` | **Plan du campus de l'EPT** utilisé pour la navigation (1171 × 1300 px, échelle ≈ 0,6 m/px estimée d'après la piste du stade) |
+| `app/img/img-plan/*.png` | Captures de référence du campus (non utilisées par l'application) |
+| `app/img/plan.svg` | Ancien plan schématique d'exemple (n'est plus utilisé) |
 | `app/img/*.svg` | Photos de remplacement, une par lieu |
 | `app/img/photo-absente.svg` | Image affichée automatiquement si la photo d'un lieu manque |
 | `app/qr/qr_<id>.png` | QR codes des points de départ |
