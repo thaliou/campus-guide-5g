@@ -3,7 +3,7 @@
   "nom": "EPT",
   "titreAccueil": "Bienvenue à l'EPT",
   "sousTitre": "Trouvez votre chemin sur le campus en quelques secondes : choisissez une destination, suivez le tracé.",
-  "photo": "img/ept.svg"
+  "photo": "img/ept-accueil.jpeg"
  },
  "carte": {
   "image": "img/img-plan/plan-campus-ept.svg",
