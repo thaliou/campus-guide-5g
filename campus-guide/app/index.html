@@ -184,6 +184,15 @@
   body.edition #carte { height:70vh; }
   body.edition .trajet-entete, body.edition #pas-de-chemin, body.edition #details,
   body.edition .actions, body.edition footer { display:none !important; }
+
+  /* ============ Itinéraire animé : flèches + petits points qui avancent ============ */
+  .fleche-trajet { background:none; border:0; }
+  .fleche-trajet svg { display:block; }
+  /* Le pointillé « avance » en décalant le début des tirets (stroke-dashoffset) */
+  .trace-anime { animation:avancer .9s linear infinite; }
+  @keyframes avancer { to { stroke-dashoffset:-24; } }   /* 24 = longueur d'un tiret + d'un espace */
+  /* Personnes sensibles aux animations : on garde les flèches, sans mouvement */
+  @media (prefers-reduced-motion: reduce) { .trace-anime { animation:none; } }
 </style>
 </head>
 <body>
@@ -400,6 +409,7 @@ const EDITION = params.has("edit");            // ?edit=1 -> outil de relevé de
 const PHOTO_ABSENTE = "img/photo-absente.svg"; // image affichée si une photo manque
 let D;                                         // contenu de campus.json
 let carte, couche;                             // carte Leaflet et calque du trajet
+let coucheFleches, cheminAffiche = null;       // flèches de direction et points (pixels) du trajet affiché
 let idDepart = params.get("depart");           // fourni par le QR code : ?depart=entree
 let lieuEnAttente = null;                      // lieu choisi avant d'avoir indiqué le départ
 
@@ -533,6 +543,43 @@ function initCarte() {
   L.imageOverlay(D.carte.image, limites).addTo(carte);
   carte.fitBounds(limites);
   couche = L.layerGroup().addTo(carte);
+  coucheFleches = L.layerGroup().addTo(carte);
+  carte.on("zoomend", placerFleches);   // après un zoom, on garde le même écart à l'écran entre les flèches
+}
+
+// ---------------------------------------------------------------------
+//  Flèches de direction le long du trajet
+// ---------------------------------------------------------------------
+
+// Chevron blanc bordé de vert, tourné de « angle » degrés (0° = vers la droite)
+function iconeFleche(angle) {
+  return L.divIcon({
+    className: "fleche-trajet", iconSize: [18, 18], iconAnchor: [9, 9],
+    html: `<svg width="18" height="18" viewBox="0 0 18 18" style="transform:rotate(${angle}deg)">
+             <path d="M6 4 L12 9 L6 14" fill="none" stroke="#0E5E45" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+             <path d="M6 4 L12 9 L6 14" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+           </svg>`
+  });
+}
+
+// Pose une flèche environ tous les 55 pixels d'écran, orientée dans le sens de la marche
+function placerFleches() {
+  coucheFleches.clearLayers();
+  if (!cheminAffiche || cheminAffiche.length < 2) return;
+  // CRS.Simple : au zoom z, 1 pixel du plan = 2^z pixels à l'écran
+  const ecart = 55 / Math.pow(2, carte.getZoom());
+  let d = ecart / 2;                                   // première flèche à une demi-distance du départ
+  for (let i = 0; i < cheminAffiche.length - 1; i++) {
+    const [x1, y1] = cheminAffiche[i], [x2, y2] = cheminAffiche[i + 1];
+    const longueur = Math.hypot(x2 - x1, y2 - y1);
+    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;   // y vers le bas, comme à l'écran
+    for (; d < longueur; d += ecart) {
+      const t = d / longueur;                          // position sur le segment (0 = début, 1 = fin)
+      L.marker(versLL([x1 + t * (x2 - x1), y1 + t * (y2 - y1)]),
+        { icon: iconeFleche(angle), interactive: false, keyboard: false }).addTo(coucheFleches);
+    }
+    d -= longueur;                                     // la distance restante continue sur le segment suivant
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -627,6 +674,7 @@ function afficherTrajet(idLieu) {
   initCarte();
   carte.invalidateSize();               // la carte vient d'apparaître : Leaflet recalcule sa taille
   couche.clearLayers();
+  cheminAffiche = null; coucheFleches.clearLayers();
   $("titre-trajet").textContent = `${dep.nom} → ${lieu.nom}`;
 
   // Aucun chemin : message clair, on n'affiche pas de résultat faux
@@ -643,6 +691,9 @@ function afficherTrajet(idLieu) {
   const points = r.chemin.map(n => versLL(D.noeuds[n].xy));
   L.polyline(points, { color: "#FFFFFF", weight: 12, opacity: .95 }).addTo(couche);
   L.polyline(points, { color: "#1E9E4A", weight: 7 }).addTo(couche);
+  // Petits points clairs qui avancent sur la ligne, du départ vers l'arrivée (animation CSS .trace-anime)
+  L.polyline(points, { color: "#BFF5D3", weight: 3, dashArray: "1 23", lineCap: "round",
+                       className: "trace-anime", interactive: false }).addTo(couche);
   // Marqueur bleu au départ, rouge à l'arrivée
   L.circleMarker(points[0], { radius: 9, color: "#fff", weight: 3, fillColor: "#2B6CB0", fillOpacity: 1 })
     .addTo(couche).bindTooltip("Vous êtes ici", { permanent: true, direction: "top" });
@@ -651,6 +702,9 @@ function afficherTrajet(idLieu) {
   // Zoom automatique sur le trajet (marge de 35 % pour voir les étiquettes)
   if (points.length > 1) carte.fitBounds(L.latLngBounds(points).pad(0.35));
   else carte.setView(points[0], 0);
+  // Flèches de direction (replacées aussi à chaque zoom)
+  cheminAffiche = r.chemin.map(n => D.noeuds[n].xy);
+  placerFleches();
 
   // Distance et temps de marche
   const metres = r.pixels * D.carte.metresParPixel;
